@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/js/all.min.js" integrity="sha512-naukR7I+Nk6gp7p5TMA4ycgfxaZBJ7MO5iC3Fp6ySQyKFHOGfpkSZkYVWV5R7u7cfAicxanwYQ5D1e17EfJcMA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <title>Document</title>
+</head>
+<style>
+  body {
+    font-family: "Poppin", sans-serif;
+    background-color: #2e3537;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    overflow: hidden; /* Hide overflow to prevent horizontal scrolling */
+  }
+
+  .book {
+    border: 2px solid red;
+    width: 45vw;
+    height: 45vh;
+    position: relative;
+    perspective: 1500;
+    touch-action: pan-y; /* Enable touch interaction for vertical panning */
+    overflow: hidden; /* Hide overflowing content */
+  }
+
+  .cover, .back-cover {
+    background-color: #4173a5;
+    width: 100%;
+    height: 100%;
+    border-radius: 0 15px 15px 0;
+    box-shadow: 0 0 5px rgb(41, 41, 41);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center left;
+  }
+
+  .cover {
+    position: absolute;
+    z-index: 4;
+    transition: transform 1s;
+  }
+
+  .cover label {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .back-cover {
+    position: relative;
+    z-index: -1;
+  }
+
+  .page-container {
+    display: flex;
+    transition: transform 1s;
+  }
+
+  .page {
+    position: relative;
+    background-color: white;
+    width: 45vw;
+    height: 45vh;
+    border-radius: 0 15px 15px 0;
+    margin-right: 10px;
+    transform-origin: left;
+    transform-style: preserve-3d;
+    transform: rotateY(0deg);
+    transition-duration: 1.5s;
+    touch-action: pan-y; /* Enable touch interaction for vertical panning */
+  }
+
+  .page img {
+    width: 100%;
+    height: 100%;
+    border-radius: 15px 0 0 15px;
+  }
+
+  .front-page {
+    position: absolute;
+    width: 45vw;
+    height: 45vh;
+    backface-visibility: hidden;
+    box-sizing: border-box;
+    padding: 1rem;
+    transition: transform 1.5s;
+  }
+
+  .back-page {
+    transform: rotateY(180deg);
+    position: absolute;
+    width: 45vw;
+    height: 45vh;
+    backface-visibility: hidden;
+    z-index: 99;
+  }
+
+  .next, .prev {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: white;
+    font-size: 24px;
+  }
+
+  .next {
+    right: 1em;
+  }
+
+  .prev {
+    left: 1em;
+  }
+
+</style>
+<body>
+  <div class="book" id="book">
+    <div class="cover" id="cover">
+      <label for="checkbox-cover"></label>
+    </div>
+    <div class="page-container" id="pageContainer">
+      <div class="page" id="page1">
+        <div class="front-page">
+          <p>Your page 1 content goes here.</p>
+          <label class="next" onclick="nextPage()"><i class="fas fa-chevron-right"></i></label>
+        </div>
+        <div class="back-page">
+          <img src="1.jpg">
+          <label class="prev" onclick="prevPage()"><i class="fas fa-chevron-left"></i></label>
+        </div>
+      </div>
+      <div class="page" id="page2">
+        <div class="front-page">
+          <h2>Page 2</h2>
+          <p>Your page 2 content goes here.</p>
+          <label class="next" onclick="nextPage()"><i class="fas fa-chevron-right"></i></label>
+        </div>
+        <div class="back-page">
+          <img src="2.jpg">
+          <label class="prev" onclick="prevPage()"><i class="fas fa-chevron-left"></i></label>
+        </div>
+      </div>
+      <div class="page" id="page3">
+        <div class="front-page">
+          <h2>Page 3</h2>
+          <p>Your page 3 content goes here.</p>
+        </div>
+      </div>
+    </div>
+    <div class="back-cover"></div>
+  </div>
+
+  <script>
+    const book = document.getElementById('book');
+    const pageContainer = document.getElementById('pageContainer');
+    const pages = document.querySelectorAll('.page');
+    let currentPage = 1;
+
+    function showPage(pageNumber) {
+      pageContainer.style.transform = `translateX(-${(pageNumber - 1) * 55}vw)`;
+    }
+
+    function nextPage() {
+      if (currentPage < pages.length) {
+        currentPage++;
+        showPage(currentPage);
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        showPage(currentPage);
+      }
+    }
+
+    // Handle touch events
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    book.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+
+    book.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].clientX;
+      handleSwipe();
+    });
+
+    function handleSwipe() {
+      const deltaX = touchEndX - touchStartX;
+
+      if (deltaX > 50) {
+        prevPage();
+      } else if (deltaX < -50) {
+        nextPage();
+      }
+    }
+  </script>
+</body>
+</html>
